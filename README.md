@@ -82,13 +82,18 @@ obi ~/project ❯ ??ask: how much disk space is left
   df -h .   [Tab]
 ```
 
-**It knows your machine.** obiobi tells the model which tools you actually have
-installed, so it reaches for yours instead of guessing:
+**It knows your machine.** At setup obiobi scans what you have installed —
+`$PATH`, plus your `pip` / `npm` / `brew` packages — and hands the model that
+list, so it reaches for your tools instead of guessing:
 
 ```
 obi ~/project ❯ ??ask: follow the logs for my kafka container and grep warnings
   docker logs -f kafka 2>&1 | grep -i warn   [Tab]
 ```
+
+The scan runs once during setup. Installed something new? Re-scan with `obiobi
+index` (`obiobi index --show` prints exactly what the model is told). It only
+reads names — it never runs a binary to find out what it does.
 
 **Destructive commands take two Tabs.** The first press only arms it; typing
 anything cancels it.
@@ -175,8 +180,40 @@ no model at all — so it does something useful the second it's installed.
 | `Enter` | run the line. It never accepts a suggestion; that's Tab's job |
 | `Esc` / `Ctrl-G` | dismiss the suggestion |
 | `Ctrl-D` | exit |
-| `??docs` | save this session's questions and answers to a file |
-| `history [n]` | your real shell history |
+
+<br>
+
+## commands
+
+Inside the prompt, just type:
+
+| type this | when you want to… |
+| --- | --- |
+| `??ask: <question>` | ask for a command in plain English (`??` and `??ask` work too) |
+| `??docs` | save this session's questions + answers to a timestamped file |
+| `history [n]` | see your real shell history (last `n`) |
+| `:backend` | check which model is answering right now |
+| `:dry` | toggle dry-run — print commands instead of running them |
+| `:help` | show the key reminder |
+| `exit` / `Ctrl-D` | leave |
+
+From your shell, without entering the prompt:
+
+| command | when you want to… |
+| --- | --- |
+| `obiobi` | start the interactive prompt (the usual way to use it) |
+| `obiobi config --reset` | **set up / switch model** — assisted, detects what's running |
+| `obiobi config` | see current settings and where the key comes from |
+| `obiobi config --set KEY=VALUE` | change one setting, e.g. `--set debounce_ms=500` |
+| `obiobi config --set-key` | paste an API key (saved to a `0600` file) |
+| `obiobi config --forget-key` | delete the saved key |
+| `obiobi doctor` | **is it working?** — config, key, backend reachability, history sync |
+| `obiobi index` | re-scan installed tools after you install something new |
+| `obiobi index --show` | print exactly what the model is told you have |
+| `obiobi ask "…"` | one-shot: just print the command for a question |
+| `obiobi ask "…" --run` | print it and run it |
+| `obiobi --dry-run` | run the prompt but never execute — only show |
+| `obiobi --backend NAME` | force `api` / `ollama` / `llama-cpp` / `heuristic` for one run |
 
 <br>
 
