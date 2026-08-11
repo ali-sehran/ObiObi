@@ -456,24 +456,10 @@ debounce forces generation; editing the question replaces a stale suggestion.
   make the suggestion silently vanish — so the ghost row is part of the layout
   instead of being a toolbar.
 
-## Publishing a release
+## Releasing
 
-```bash
-python -m build                       # -> dist/*.whl and dist/*.tar.gz
-python -m twine check dist/*          # must say PASSED for both
-python -m twine upload dist/*         # username: __token__, password: pypi-...
-```
-
-Bump `version` in `pyproject.toml` first — PyPI refuses to overwrite a version
-that already exists. Try it against TestPyPI if you want a dry run:
-
-```bash
-python -m twine upload --repository testpypi dist/*
-pip install --index-url https://test.pypi.org/simple/ obiobi
-```
-
-Get the token from <https://pypi.org/manage/account/token/>. Scope it to this
-project once the project exists; the first upload needs an account-wide token.
+Maintainer steps — build, tag, upload, cut the release — live in
+[RELEASING.md](RELEASING.md).
 
 ## Files
 
