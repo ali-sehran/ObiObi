@@ -47,14 +47,36 @@ find it as useful as I did.
 
 ## install
 
+Three steps. macOS, Linux, and WSL, on Python 3.9+.
+
+**1 — install the package**
+
 ```bash
-pipx install obiobi      # or: pip install obiobi  /  uv tool install obiobi
-obiobi config --reset    # pick a model — local ollama, a local server, or a hosted API
-obiobi
+pip install obiobi
 ```
 
-That's the whole setup. `config --reset` sees what's already running and walks
-you through it:
+> On macOS you may see `externally-managed-environment`. If so:
+> `pip install --user obiobi`
+
+**2 — make `obiobi` a command**
+
+`python3 -m obiobi` already works in any terminal, no setup. For the short
+`obiobi` word, add a one-line alias to your shell's startup file:
+
+```bash
+echo "alias obiobi='python3 -m obiobi'" >> ~/.zshrc     # zsh (macOS default)
+echo "alias obiobi='python3 -m obiobi'" >> ~/.bashrc    # or bash
+```
+
+Open a new terminal (or `source` that file) and `obiobi` works everywhere.
+
+**3 — pick a model**
+
+```bash
+obiobi config --reset
+```
+
+It sees what's already running and walks you through it — then just run `obiobi`:
 
 ```
 obiobi setup — Enter takes the suggested value, Tab shows the alternatives
@@ -68,8 +90,10 @@ model [llama3.2:3b]:
 ✓ backend ollama:llama3.2:3b is reachable
 ```
 
-One dependency (`prompt_toolkit`), no model bundled. Works on macOS, Linux and
-WSL with Python 3.9+.
+One dependency (`prompt_toolkit`), no model bundled.
+
+> **Windows:** run it inside WSL and follow the steps above. Native PowerShell
+> isn't supported yet — obiobi runs commands through a POSIX shell.
 
 <br>
 
