@@ -61,14 +61,18 @@ pip install obiobi
 **2 — make `obiobi` a command**
 
 `python3 -m obiobi` already works in any terminal, no setup. For the short
-`obiobi` word, add a one-line alias to your shell's startup file:
+`obiobi` word, add a one-line alias to **your shell's startup file** — and it
+matters which one:
 
 ```bash
-echo "alias obiobi='python3 -m obiobi'" >> ~/.zshrc     # zsh (macOS default)
-echo "alias obiobi='python3 -m obiobi'" >> ~/.bashrc    # or bash
+echo "alias obiobi='python3 -m obiobi'" >> ~/.zshrc          # zsh (macOS default)
+echo "alias obiobi='python3 -m obiobi'" >> ~/.bash_profile   # bash on macOS
+echo "alias obiobi='python3 -m obiobi'" >> ~/.bashrc         # bash on Linux
 ```
 
-Open a new terminal (or `source` that file) and `obiobi` works everywhere.
+Then `source` that same file (or open a new terminal) and `obiobi` works
+everywhere. macOS bash reads `~/.bash_profile`, **not** `~/.bashrc` — the most
+common reason the alias "doesn't take."
 
 **3 — pick a model**
 
