@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "obiobi"
+version = "1.0.0"
+description = "帯 — a quiet band around your shell. Ask in plain English; the command appears in grey, Tab accepts it."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+keywords = ["shell", "terminal", "cli", "llm", "natural-language", "ollama", "openai"]
+authors = [{ name = "Ali Sehran" }]
+# One pure-python dependency. Models are optional and never bundled.
+dependencies = ["prompt_toolkit>=3.0.0"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: System :: Shells",
+  "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+local = ["llama-cpp-python>=0.2.79"]
+
+[project.urls]
+Homepage = "https://github.com/ali-sehran/ObiObi"
+Source = "https://github.com/ali-sehran/ObiObi"
+Issues = "https://github.com/ali-sehran/ObiObi/issues"
+
+[project.scripts]
+obiobi = "obiobi.cli:main"
+
+[tool.setuptools]
+packages = ["obiobi"]
