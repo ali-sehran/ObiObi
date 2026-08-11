@@ -13,8 +13,9 @@ BLOCKED: list[tuple[str, str]] = [
     (r"\brm\s+(-[a-z]*[rf][a-z]*\s+)+(/|/\*|~|\$HOME)\s*$", "recursive delete of / or $HOME"),
     (r":\s*\(\s*\)\s*\{.*\|\s*:\s*&\s*\}\s*;\s*:", "fork bomb"),
     (r"\bmkfs(\.\w+)?\b", "formats a filesystem"),
-    (r"\bdd\b[^|]*\bof=/dev/(sd|nvme|disk|hd)", "raw write to a block device"),
-    (r">\s*/dev/(sd|nvme|disk|hd)\w*", "raw write to a block device"),
+    (r"\bdd\b[^|]*\bof=/dev/r?(sd|nvme|disk|hd)", "raw write to a block device"),
+    (r"\b(tee|dd)\b[^|]*/dev/r?(sd|nvme|disk|hd)", "raw write to a block device"),
+    (r">\s*/dev/r?(sd|nvme|disk|hd)\w*", "raw write to a block device"),
     (r"\bchmod\s+(-R\s+)?777\s+/\s*$", "world-writable root"),
     (r"\b(curl|wget)\b[^|;]*\|\s*(sudo\s+)?(ba|z|k)?sh", "pipes a download straight into a shell"),
     (r"\bhistory\s+-c\b.*\brm\b", "wipes history and deletes files"),
@@ -34,6 +35,8 @@ RISKY: list[tuple[str, str]] = [
     (r"\btruncate\b|\b>\s*/etc/", "overwrites a system file"),
     (r"\bdocker\s+(rm|rmi|system\s+prune|volume\s+rm)\b", "removes containers, images or volumes"),
     (r"\bcrontab\s+-r\b", "removes all cron jobs"),
+    (r"\bdd\b[^|]*\bof=", "overwrites a file or device with dd"),
+    (r"\bfind\b[^|]*\s-delete\b", "deletes matched files"),
 ]
 
 

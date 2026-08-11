@@ -406,22 +406,29 @@ rather have the milliseconds back, `obiobi config --set login_shell=false`.
 
 ## Safety
 
-Every suggestion is screened before it is offered:
+The real guarantee is structural: **nothing runs until you press a key.** A
+suggestion is grey text, not a queued command. On top of that, every command is
+screened at the single point where it would execute:
 
-- **Blocked** — never offered or run: `rm -rf /`, `mkfs`, raw writes to block
-  devices, fork bombs, `curl … | sh`, `chmod 777 /`. The ghost line shows
-  `refused: <reason>`.
-- **Risky** — offered with a `⚠` and a reason, and requires a typed `y` before it
-  runs: sudo, deletes, `kill`, package installs, `git reset --hard`, force pushes,
-  writes into system directories, docker removals.
+- **Blocked** — replaced with `refused: <reason>`, never runnable: `rm -rf /`,
+  `mkfs`, raw writes to a block device, fork bombs, `curl … | sh`, `chmod 777 /`.
+- **Risky** — offered with a `⚠` and a reason, and gated: `Tab` twice to accept,
+  then a typed `y` before it runs. Covers sudo, deletes, `kill`, package
+  installs, `git reset --hard`, force pushes, writes into system directories,
+  docker removals, `dd`, `find -delete`.
 
-`confirm_risky` and `dry_run` are configurable. Commands run in `$SHELL -c`;
-`cd` is handled in-process so directory changes persist.
+Be clear-eyed about what the screen is: a **denylist**, defense-in-depth against
+a model that suggests something reckless — not a sandbox. It catches the worst
+shapes by pattern, and a sufficiently creative command can still land unflagged.
+That is why the design never auto-runs anything: the human keystroke is the
+guarantee, the screen is the safety net. `confirm_risky` and `dry_run` are
+configurable; `dry_run` prints instead of running, which is the safest way to
+try it. Commands run through `$SHELL -lc`; `cd` is handled in-process.
 
 ## Tests
 
 ```bash
-python3 -m unittest discover -s tests      # 118 tests
+python3 -m unittest discover -s tests      # 119 tests
 python3 tests/pty_demo.py                  # drives a real pty, shows the output
 ```
 

