@@ -1,0 +1,19 @@
+# build artefacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# obiobi writes these next to wherever you run it
+obiobi-*.md
+
+# editors / os
+.DS_Store
+.idea/
+.vscode/

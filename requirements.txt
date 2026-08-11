@@ -1,0 +1,3 @@
+prompt_toolkit>=3.0.0
+# optional, for a fully local GGUF model:
+# llama-cpp-python>=0.2.79
