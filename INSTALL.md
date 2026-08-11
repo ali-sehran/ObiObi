@@ -114,8 +114,21 @@ For a local GGUF through llama.cpp: `pip install "obiobi[local]"` then
 | `~/.local/share/obiobi/tools.json` | the list of installed commands |
 | `~/.bash_history` / `~/.zsh_history` | your history — obiobi reads and appends to it |
 
-**bash users:** add `shopt -s histappend` to your rc. Without it bash overwrites
-the history file when a terminal closes and drops the commands obiobi added.
+**bash users — keeping history in sync.** For commands you run in obiobi to show
+up in your terminal's `history` (and vice versa) while both are open, add two
+lines to your rc (`~/.bashrc`, or `~/.bash_profile` on macOS):
+
+```bash
+shopt -s histappend                                   # don't overwrite on exit
+PROMPT_COMMAND='history -a; history -c; history -r'   # flush + reload each prompt
+```
+
+`histappend` stops bash truncating the file when a terminal closes.
+`PROMPT_COMMAND` flushes this terminal's commands and re-reads the file after
+every prompt, so both sides stay current. Use exactly `-a; -c; -r` — the shorter
+`history -a; history -n` silently drops entries another process appended.
+`obiobi doctor` tells you whether the sync is active. zsh shares history without
+any of this.
 
 ## Uninstall
 
