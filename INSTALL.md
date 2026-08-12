@@ -1,91 +1,62 @@
 # Installing obiobi 帯 on a new machine
 
-Works the same on macOS, Linux, WSL and Windows. You need Python 3.9 or newer.
+Three steps. macOS, Linux, and WSL, on Python 3.9+.
+(Windows: run it inside WSL — obiobi runs commands through a POSIX shell, so
+native PowerShell isn't supported yet.)
 
-## 1. Install
-
-```bash
-pipx install obiobi
-```
-
-`pipx` gives obiobi its own environment and puts the command on your PATH. If
-you don't have it, any of these work just as well:
+## 1. Install the package
 
 ```bash
-uv tool install obiobi        # if you use uv
-pip install --user obiobi     # plain pip
+pip install obiobi
 ```
 
-If the shell says `obiobi: command not found` afterwards, the install directory
-isn't on your PATH. `pipx ensurepath` fixes it, or add this to your shell rc:
+On macOS you may see `externally-managed-environment`. If so, scope it to your
+user:
 
 ```bash
-export PATH="$HOME/.local/bin:$PATH"
+pip install --user obiobi
 ```
 
-## 2. Configure
+## 2. Make `obiobi` a command
+
+`python3 -m obiobi` already works in every terminal, with no PATH setup — try
+it now. For the short `obiobi` word, add a one-line alias to **your shell's
+startup file**. It matters which one:
+
+```bash
+echo "alias obiobi='python3 -m obiobi'" >> ~/.zshrc          # zsh (macOS default)
+echo "alias obiobi='python3 -m obiobi'" >> ~/.bash_profile   # bash on macOS
+echo "alias obiobi='python3 -m obiobi'" >> ~/.bashrc         # bash on Linux
+```
+
+Then `source` that same file (or open a new terminal) and `obiobi` works
+everywhere:
+
+```bash
+source ~/.bash_profile     # or ~/.zshrc — whichever you edited
+```
+
+> **`obiobi: command not found`?** The alias went in a file your shell doesn't
+> read. macOS bash login shells read `~/.bash_profile`, **not** `~/.bashrc` —
+> that's the #1 cause. When in doubt, just use `python3 -m obiobi`; it always
+> works.
+
+## 3. Pick a model
 
 ```bash
 obiobi config --reset
 ```
 
-That is an assisted setup: it detects a running ollama daemon, offers
-`local-server` (vLLM / LM Studio / llama-server) or a hosted API, and fills in
-sensible defaults. Enter takes the recommendation, Tab shows the alternatives.
+Assisted setup: it detects a running ollama daemon, offers `local-server`
+(vLLM / LM Studio / llama-server) or a hosted API, and fills in sensible
+defaults. **Enter** takes the recommendation, **Tab** shows the alternatives.
+It also builds the index of your installed tools, so the model suggests
+`docker ps` on a box that has docker.
 
-Run `obiobi config` on its own to see what is set and what is missing:
-
-```
-obiobi    ~/.config/obiobi/config.json
-  backend        auto
-  api_base       not set
-  api_model      gpt-4o-mini
-  api_key_env    OPENAI_API_KEY
-  (13 more settings: obiobi config --all)
-
-api key   not set
-  save one for every session:  obiobi config --set-key
-  or export $OPENAI_API_KEY in your shell rc
-```
-
-Point it at a provider. Any OpenAI-compatible endpoint works — this is
-OpenRouter's free tier, which needs no credit:
+Then just run it:
 
 ```bash
-obiobi config --set backend=api \
-              --set api_base=https://openrouter.ai/api/v1 \
-              --set api_model=nvidia/nemotron-3-nano-30b-a3b:free \
-              --set api_key_env=OPENROUTER_API_KEY
-```
-
-Then give it the key once:
-
-```bash
-obiobi config --set-key
-API key (not echoed): ••••••••
-saved to ~/.config/obiobi/credentials (mode 600)
-```
-
-That file is readable only by you and is the **only** place a key is written.
-`config.json` never contains it, so you can copy that file to another machine,
-commit it, or paste it in a ticket. `obiobi config --forget-key` removes it.
-
-An environment variable still wins if you set one, which is what you want on a
-shared or CI machine:
-
-```bash
-export OPENROUTER_API_KEY=sk-or-v1-...
-```
-
-The first `config --set ...` also scans the machine for installed commands and
-packages, so the model suggests `docker ps` on a box that has docker. Re-run
-`obiobi index` after installing new tools.
-
-## 3. Check and run
-
-```bash
-obiobi doctor      # os, python, endpoint, key source, index, live backend
-obiobi             # the prompt
+obiobi
 ```
 
 ```
@@ -93,17 +64,67 @@ obi ~/projects ❯ ??ask: what containers are running
   docker ps   [Tab]
 ```
 
-## No API at all?
+---
+
+## Configuring by hand
+
+`obiobi config` on its own shows what's set and what's missing. To wire up a
+provider without the wizard — any OpenAI-compatible endpoint works; this is
+OpenRouter's free tier, which needs no credit:
+
+```bash
+obiobi config --set backend=api \
+              --set api_base=https://openrouter.ai/api/v1 \
+              --set api_model=nvidia/nemotron-3-nano-30b-a3b:free \
+              --set api_key_env=OPENROUTER_API_KEY
+obiobi config --set-key        # prompts, saves to ~/.config/obiobi/credentials (mode 600)
+```
+
+The key lives in that `credentials` file and **nowhere else** — `config.json`
+only stores the *name* of the env var, so it's safe to commit or copy between
+machines. An environment variable wins if you set one (handy for CI):
+
+```bash
+export OPENROUTER_API_KEY=sk-or-v1-...
+```
+
+`obiobi config --forget-key` deletes the saved key.
+
+## No API at all
 
 Two offline options, neither needs a key:
 
 ```bash
-obiobi config --set backend=ollama    # a local ollama daemon
-obiobi config --set backend=heuristic # ~25 regex rules, instant, no model
+obiobi config --set backend=ollama      # a local ollama daemon
+obiobi config --set backend=heuristic   # ~25 regex rules, instant, no model
 ```
 
-For a local GGUF through llama.cpp: `pip install "obiobi[local]"` then
+For a local GGUF through llama.cpp: `pip install "obiobi[local]"`, then
 `obiobi install --backend llama-cpp`.
+
+## Check it's working
+
+```bash
+obiobi doctor    # os, python, endpoint, key source, index, live backend
+```
+
+The bottom `backend` line is the real test — it actually builds the backend, so
+if something's off (no key, wrong URL, ollama down) it says so there.
+
+## Keep your history in sync (bash only)
+
+Commands you run in obiobi already go to `~/.bash_history`. For an **already-open**
+terminal to see them (and vice versa), add to your rc — `~/.bashrc`, or
+`~/.bash_profile` on macOS:
+
+```bash
+shopt -s histappend
+PROMPT_COMMAND='history -a; history -c; history -r'
+```
+
+Use exactly `-a; -c; -r` — the shorter `history -a; history -n` silently drops
+entries. zsh shares history without any of this. `obiobi doctor` tells you
+whether the sync is active.
 
 ## Where things live
 
@@ -111,28 +132,15 @@ For a local GGUF through llama.cpp: `pip install "obiobi[local]"` then
 | --- | --- |
 | `~/.config/obiobi/config.json` | settings — safe to share |
 | `~/.config/obiobi/credentials` | the API key, mode 600 |
-| `~/.local/share/obiobi/tools.json` | the list of installed commands |
-| `~/.bash_history` / `~/.zsh_history` | your history — obiobi reads and appends to it |
-
-**bash users — keeping history in sync.** For commands you run in obiobi to show
-up in your terminal's `history` (and vice versa) while both are open, add two
-lines to your rc (`~/.bashrc`, or `~/.bash_profile` on macOS):
-
-```bash
-shopt -s histappend                                   # don't overwrite on exit
-PROMPT_COMMAND='history -a; history -c; history -r'   # flush + reload each prompt
-```
-
-`histappend` stops bash truncating the file when a terminal closes.
-`PROMPT_COMMAND` flushes this terminal's commands and re-reads the file after
-every prompt, so both sides stay current. Use exactly `-a; -c; -r` — the shorter
-`history -a; history -n` silently drops entries another process appended.
-`obiobi doctor` tells you whether the sync is active. zsh shares history without
-any of this.
+| `~/.local/share/obiobi/tools.json` | the index of installed commands |
+| `~/.bash_history` / `~/.zsh_history` | your history — obiobi reads and appends |
 
 ## Uninstall
 
 ```bash
-pipx uninstall obiobi
-rm -rf ~/.config/obiobi ~/.local/share/obiobi
+python3 -m pip uninstall obiobi          # add --break-system-packages on macOS if it complains
+rm -rf ~/.config/obiobi ~/.local/share/obiobi   # settings, key, and index
 ```
+
+`pip uninstall` removes the program; the second line removes your settings and
+the saved key. Also drop the alias line from your shell rc if you added one.
